@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Results from "./Results";
 import "./Dictionary.css";
@@ -12,19 +12,23 @@ export default function Dictionary() {
   const pexelsApiKey =
     "KfRMWXGcsO7GqfNSlBgPpGszyMuNf9wxHyMgcmhHJsCuUZ55AjI7wltb";
 
+  // Memoize the search function using useCallback
+  const search = useCallback(
+    (event) => {
+      if (event) {
+        event.preventDefault();
+      }
+
+      const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${keyword}`;
+      axios.get(apiUrl).then(handleResponse).catch(handleError);
+      fetchImage(keyword);
+    },
+    [keyword]
+  ); // Add `keyword` as a dependency for `search`
+
   useEffect(() => {
     search();
   }, [search]);
-
-  function search(event) {
-    if (event) {
-      event.preventDefault();
-    }
-
-    const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${keyword}`;
-    axios.get(apiUrl).then(handleResponse).catch(handleError);
-    fetchImage(keyword);
-  }
 
   function fetchImage(word) {
     const imageApiUrl = `https://api.pexels.com/v1/search?query=${word}&per_page=9`; // 9 images per query
@@ -66,10 +70,6 @@ export default function Dictionary() {
     setResults(null);
   }
 
-  function clearSearch() {
-    setKeyword("");
-  }
-
   return (
     <div className="Dictionary">
       <h1>Dictionary</h1>
@@ -109,7 +109,7 @@ export default function Dictionary() {
                 rel="noopener noreferrer"
                 key={index}
               >
-                <img src={image.url} alt={`Image for ${keyword}`} />
+                <img src={image.url} alt={`${keyword} related`} />
               </a>
             ))}
           </div>
