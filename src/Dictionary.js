@@ -14,7 +14,7 @@ export default function Dictionary() {
 
   useEffect(() => {
     search();
-  }, []);
+  }, [search]);
 
   function search(event) {
     if (event) {
